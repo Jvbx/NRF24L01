@@ -381,7 +381,7 @@ NRF_RESULT nrf_set_crc_width(nrf24l01* dev, NRF_CRC_WIDTH width) {
     if (width == NRF_CRC_WIDTH_2B) {
         reg |= 1 << 2;
     } else {
-        reg &= ~(1 << 3);
+        reg &= ~(1 << 2);
     }
 
     if (nrf_write_register(dev, NRF_CONFIG, &reg) != NRF_OK) {
@@ -417,8 +417,10 @@ NRF_RESULT nrf_rx_tx_control(nrf24l01* dev, NRF_TXRX_STATE rx) {
 
     if (rx) {
         reg |= 1;
+	dev->state=NRF_STATE_RX;    
     } else {
         reg &= ~(1);
+	dev->state=NRF_STATE_TX;
     }
 
     if (nrf_write_register(dev, NRF_CONFIG, &reg) != NRF_OK) {
