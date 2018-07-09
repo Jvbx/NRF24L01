@@ -2,14 +2,24 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "spi.h"
 
-#if defined STM32F0
-#include "stm32f0xx_hal.h"
-#elif defined STM32F1
+#if defined STM32F100xB
 #include "stm32f1xx_hal.h"
-#elif defined STM32F4
+#elif defined STM32F407xx
 #include "stm32f4xx_hal.h"
 #endif
+
+
+#define NRF_DATARATE 			NRF_DATA_RATE_250KBPS
+#define NRF_TXPOWER 			NRF_TX_PWR_0dBm
+#define NRF_CRC_WITH 			NRF_CRC_WIDTH_1B
+#define NRF_ADR_WITH 			NRF_ADDR_WIDTH_3
+#define NRF_PAYLOADLEN 		0x10										//16 bytes
+#define NRF_RETRANSCOUNT 	0x0F 										//15
+#define NRF_RETRANSDELAY 	0x07										//500 uS
+#define NRF_CHANNEL 			119										//2.519Ghz
+
 
 /* Registers */
 typedef enum {
@@ -93,8 +103,8 @@ typedef struct {
     uint8_t  retransmit_count;
     uint8_t  retransmit_delay;
     uint8_t  rf_channel;
-    uint8_t* rx_address;
-    uint8_t* tx_address;
+    const uint8_t* rx_address;
+    const uint8_t* tx_address;
 
     /* Must be sufficient size according to payload_length */
     uint8_t* rx_buffer;
@@ -123,8 +133,12 @@ typedef struct {
 
 } nrf24l01;
 
+
+extern uint8_t nrf24_timeout;
+
 /* Initialization routine */
 NRF_RESULT nrf_init(nrf24l01* dev, nrf24l01_config* config);
+NRF_RESULT nrf_startup(nrf24l01* dev);
 
 /* EXTI Interrupt Handler
  *
@@ -208,16 +222,13 @@ NRF_RESULT nrf_enable_tx_data_sent_irq(nrf24l01* dev, bool activate);
 NRF_RESULT nrf_enable_max_retransmit_irq(nrf24l01* dev, bool activate);
 
 /* RX_ADDR_P0 */
-NRF_RESULT nrf_set_rx_address_p0(nrf24l01* dev,
-                                 uint8_t*  address); // 5bytes of address
+NRF_RESULT nrf_set_rx_address_p0(nrf24l01* dev, const uint8_t*  address); // 5bytes of address
 
 /* RX_ADDR_P1 */
-NRF_RESULT nrf_set_rx_address_p1(nrf24l01* dev,
-                                 uint8_t*  address); // 5bytes of address
+NRF_RESULT nrf_set_rx_address_p1(nrf24l01* dev, const uint8_t*  address); // 5bytes of address
 
 /* TX_ADDR */
-NRF_RESULT nrf_set_tx_address(nrf24l01* dev,
-                              uint8_t*  address); // 5bytes of address
+NRF_RESULT nrf_set_tx_address(nrf24l01* dev, const uint8_t*  address); // 5bytes of address
 
 /* RX_PW_P0 */
 NRF_RESULT nrf_set_rx_payload_width_p0(nrf24l01* dev, uint8_t width);
