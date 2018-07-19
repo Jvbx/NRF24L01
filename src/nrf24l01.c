@@ -290,7 +290,7 @@ NRF_RESULT nrf_set_tx_power(nrf24l01* dev, NRF_TX_PWR pwr) {
         return NRF_ERROR;
     }
     reg &= 0xF9;     // clear bits 1,2
-    reg |= (pwr << 1)+1; // set bits 1,2
+    reg |= (pwr << 1); // set bits 1,2
     if (nrf_write_register(dev, NRF_RF_SETUP, &reg) != NRF_OK) {
         return NRF_ERROR;
     }
